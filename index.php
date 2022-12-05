@@ -1,3 +1,4 @@
+<?php require_once './database/connection.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -51,6 +52,8 @@
 
         </div>
     </div>
+
+    <?php require_once './includes/modals.php'; ?>
 
     <?php require_once './includes/script.php'; ?>
 
@@ -107,7 +110,7 @@
                 .then(function(result) {
                     let taskRows = "";
                     result.forEach(function(value) {
-                        taskRows += `<div class="border rounded p-3 mb-2"><div class="row"><div class="col-md-10"><input type="text" class="form-control bg-white" name="task-input-edit" id="task-input-${value['id']}" disabled placeholder="Input your Task" value="${value['task_body']}"></div><div class="col-md-1"><button class="btn btn-outline-info" id="btn-edit-${value['id']}" onclick="editTask(${value['id']})">Edit</button></div><div class="col-md-1"><button class="btn btn-outline-danger" onclick="deleteTask(${value['id']})">Delete</button></div></div></div>`;
+                        taskRows += `<div class="border rounded p-3 mb-2"><div class="row"><div class="col-md-10"><input type="text" class="form-control bg-white" name="task-input-edit" id="task-input-${value['id']}" disabled placeholder="Input your Task" value="${value['task_body']}"></div><div class="col-md-1"><button class="btn btn-outline-info" id="btn-edit-${value['id']}" onclick="editTask(${value['id']})">Edit</button></div><div class="col-md-1"><button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteTask" onclick="deleteTask(${value['id']})">Delete</button></div></div></div>`;
                     });
                     const tasksContainerElement = document.getElementById('tasks-container');
                     tasksContainerElement.innerHTML = taskRows;
@@ -167,8 +170,36 @@
 
         function deleteTask(id) {
 
+            const errorDelete = document.getElementById('error-delete');
+            const successDelete = document.getElementById('success-delete');
+            const deleteTaskForm = document.getElementById('delete-task-form');
+            deleteTaskForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const data = {
+                    id: id,
+                    submit: 1
+                }
+
+                fetch('./delete_task.php', {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(result) {
+                    if (result.success) {
+                        successDelete.innerHTML = alert(result.success, 'success');;
+                        showTasks();
+                        deleteTaskForm.remove();
+                    } else if (result.failed) {
+                        errorDelete.innerHTML = alert(result.failed, 'danger');
+                    }
+                });
+            });
         }
-        
+
         showTasks();
 
         function alert(msg, cls) {

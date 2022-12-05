@@ -3,25 +3,25 @@
 <?php
 session_start();
 
-if(isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
 	header('location: ./index.php');
 }
 
 $error = $email = "";
 
-if(isset($_POST['submit'])) {
+if (isset($_POST['submit'])) {
 	$email = htmlspecialchars($_POST['email']);
 	$password = htmlspecialchars($_POST['password']);
 
-	if(empty($email)) {
+	if (empty($email)) {
 		$error = "Please enter your E-mail!";
-	} elseif(empty($password)) {
+	} elseif (empty($password)) {
 		$error = "Please enter your Password!";
 	} else {
 		$new_password = md5($password);
 		$sql = "SELECT `id` FROM `users` WHERE `email` = '$email' AND `password` = '$new_password'";
 		$result = $conn->query($sql);
-		if($result->num_rows > 0) {
+		if ($result->num_rows > 0) {
 			$user = $result->fetch_assoc();
 			$_SESSION['user_id'] = $user['id'];
 			header('location: ./index.php');
@@ -38,6 +38,7 @@ if(isset($_POST['submit'])) {
 <?php require_once 'includes/head.php'; ?>
 
 <body>
+	
 	<main class="d-flex w-100">
 		<div class="container d-flex flex-column">
 			<div class="row vh-100">
